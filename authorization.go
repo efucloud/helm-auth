@@ -19,11 +19,9 @@ package auth
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/jmespath/go-jmespath"
+	"github.com/efucloud/common/eauth"
 	"github.com/pkg/errors"
-	"reflect"
 	"regexp"
-	"strings"
 )
 
 const (
@@ -38,6 +36,7 @@ var (
 	BearerAuthAuthorizerType AuthorizerType = "bearer"
 
 	bearerTokenMatch = regexp.MustCompile("(?i)bearer (.*)")
+	workspaceRoles   = []string{"admin", "edit", "view", "ci", "cd"}
 )
 
 type (
@@ -185,36 +184,41 @@ func (authorizer *Authorizer) authorizeBearerAuth(authHeader string, action stri
 	}
 
 	signedString := bearerTokenMatch.ReplaceAllString(authHeader, "$1")
+	var claims eauth.AccountClaims
 
 	// TODO log error
 	token, err := authorizer.TokenDecoder.DecodeToken(signedString)
 	if err == nil {
 		byteData, err := json.Marshal(token.Claims)
 		if err == nil {
-			var data interface{}
-			err := json.Unmarshal(byteData, &data)
+			err := json.Unmarshal(byteData, &claims)
 			if err == nil {
-				allowedActionsSearchPath := strings.ReplaceAll(strings.ReplaceAll(authorizer.AllowedActionsSearchPath, "$NAMESPACE", namespace), "$ACCESS_ENTRY_TYPE", authorizer.AccessEntryType)
-				result, err := jmespath.Search(allowedActionsSearchPath, data)
-				if err == nil {
-					switch reflect.TypeOf(result).Kind() {
-					case reflect.Slice:
-						allowedActions := reflect.ValueOf(result)
-						for i := 0; i < allowedActions.Len(); i++ {
-							if fmt.Sprintf("%v", allowedActions.Index(i)) == action {
+				for ns, roles := range claims.WorkspacesRoles {
+					if ns == namespace {
+						for _, role := range roles {
+							switch role {
+							case "admin", "edit", "ci":
 								allowed = true
-								break
+							case "view", "cd":
+								if action == PullAction {
+									allowed = true
+								} else {
+									allowed = false
+								}
 							}
 						}
+
 					}
 				}
+
 			}
 		}
 	}
 
 	if !allowed {
 		wwwAuthenticateHeader = fmt.Sprintf("Bearer realm=\"%s\",service=\"%s\",scope=\"%s:%s:%s\"",
-			authorizer.Realm, authorizer.Service, authorizer.AccessEntryType, namespace, action)
+			authorizer.Realm, authorizer.Service, authorizer.AccessEntryType,
+			fmt.Sprintf("%s/%s", claims.Org, namespace), action)
 	}
 
 	permission := Permission{

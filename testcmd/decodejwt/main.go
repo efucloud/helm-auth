@@ -21,7 +21,7 @@ import (
 	"fmt"
 	"os"
 
-	cmAuth "github.com/chartmuseum/auth"
+	cmAuth "github.com/chartmuseum/helm-auth"
 
 	"github.com/golang-jwt/jwt"
 )

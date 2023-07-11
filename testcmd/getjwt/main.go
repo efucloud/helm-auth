@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"time"
 
-	cmAuth "github.com/chartmuseum/auth"
+	cmAuth "github.com/chartmuseum/helm-auth"
 )
 
 func main() {

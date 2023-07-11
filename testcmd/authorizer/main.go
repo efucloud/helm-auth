@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"os"
 
-	cmAuth "github.com/chartmuseum/auth"
+	cmAuth "github.com/chartmuseum/helm-auth"
 )
 
 func main() {
