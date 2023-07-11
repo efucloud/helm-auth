@@ -1,4 +1,4 @@
-module github.com/chartmuseum/helm-auth
+module github.com/efucloud/helm-auth
 
 go 1.20
 
