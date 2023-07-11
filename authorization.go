@@ -19,7 +19,7 @@ package auth
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/efucloud/common/eauth"
+
 	"github.com/pkg/errors"
 	"regexp"
 )
@@ -184,7 +184,7 @@ func (authorizer *Authorizer) authorizeBearerAuth(authHeader string, action stri
 	}
 
 	signedString := bearerTokenMatch.ReplaceAllString(authHeader, "$1")
-	var claims eauth.AccountClaims
+	var claims AccountClaims
 
 	// TODO log error
 	token, err := authorizer.TokenDecoder.DecodeToken(signedString)

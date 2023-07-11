@@ -23,6 +23,26 @@ import (
 	"github.com/golang-jwt/jwt"
 )
 
+type AccountClaims struct {
+	EAuthID         uint                `json:"eAuthId"`
+	Org             string              `json:"org"`
+	AuthProvider    string              `json:"authProvider"`
+	Username        string              `json:"username"` // 用户名 组织内唯一必须由DNS-1123标签格式的单元组成
+	Nickname        string              `json:"nickname"` // 昵称，如中文名
+	OrgRole         string              `json:"orgRole"`  // 组织角色
+	Nonce           string              `json:"nonce"`
+	Email           string              `json:"email"`
+	Phone           string              `json:"phone"`
+	Groups          []string            `json:"groups"`
+	Workspaces      []string            `json:"workspaces"`      // 工作空间
+	WorkspacesRoles map[string][]string `json:"workspacesRoles"` // 工作空间角色
+	AppCode         string              `json:"appCode"`
+	AppClientID     string              `json:"appClientId"`
+	AppOwner        bool                `json:"appOwner"`
+	Category        string              `json:"category"`
+	jwt.StandardClaims
+}
+
 const (
 	AccessEntryType          = "artifact-repository"
 	AllowedActionsSearchPath = "access[?name=='$NAMESPACE' && type=='$ACCESS_ENTRY_TYPE'].actions[]"
