@@ -218,10 +218,10 @@ func (authorizer *Authorizer) authorizeBearerAuth(authHeader string, action stri
 					for ns, roles := range accountClaims.WorkspacesRoles {
 						if ns == namespace {
 							for _, role := range roles {
-								switch role {
-								case "admin", "edit", "ci":
+								switch strings.ToLower(role) {
+								case "admin", "ci", "cicd":
 									allowed = true
-								case "view", "cd":
+								case "edit", "view", "cd":
 									if action == PullAction {
 										allowed = true
 									} else {
